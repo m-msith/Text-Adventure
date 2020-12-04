@@ -1,16 +1,17 @@
 import tkinter as tk
 
 class Text_Dungeon(tk.Frame):
-    def __init__(self, master=None):    
-        self.maxrowval = 4
+
+    def __init__(self, Num_Answers, master=None):    
+        self.maxrowval = Num_Answers
         self.minrowval = 0
         self.maxcolval = 1
         self.mincolval = 0
         
-        self.textvars = []
-        self.minput = 0                
+        self.textvars = []           
+        self.mPrompt = tk.Listbox()
         
-        for i in range(0, 4):
+        for i in range(0, self.maxrowval):
             self.textvars.append(tk.StringVar())
             self.textvars[i].set('nobadword')                
         
@@ -43,9 +44,19 @@ class Text_Dungeon(tk.Frame):
         self.create_user_selButo()
         self.create_user_selText()                
         
+    def update_widgets(self):        
+        self.update_mainPrompt()
+        self.create_user_selButo()
+        self.create_user_selText()  
+        
     def create_mainPrompt(self):
         self.mPrompt = tk.Listbox(self, bg='black', fg='white', highlightcolor='red', highlightbackground='red',
         activestyle='none', highlightthickness=10, selectbackground='black')
+        self.mPrompt.grid(row=0, column=0, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
+        sb = tk.Scrollbar(self.mPrompt)
+        self.mPrompt.configure(yscrollcommand=sb)
+        
+    def update_mainPrompt(self):
         self.mPrompt.grid(row=0, column=0, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
         sb = tk.Scrollbar(self.mPrompt)
         self.mPrompt.configure(yscrollcommand=sb)
@@ -55,20 +66,41 @@ class Text_Dungeon(tk.Frame):
         self.buttons = []
         self.cmdHandlers = []
         
-        for i in range(0,4):
+        for i in range(0,self.maxrowval):
             self.cmdHandlers.append(ButtonCmd(i, self.textvars[i], self.mPrompt))
             self.buttons.append(tk.Button(self, text=str(i+1), bg='black', fg="red", command=self.cmdHandlers[i].button_cmd))
-            self.buttons[i].grid(row=i+1, column=self.mincolval, sticky='ewns')
+            self.buttons[i].grid(row=i+1, column=self.mincolval, sticky=tk.N+tk.S+tk.E+tk.W)
             
         
     def create_user_selText(self):
         
         self.text_labels = []
         
-        for i in range(0,4):
+        for i in range(0,self.maxrowval):
             self.text_labels.append(tk.Label(self, textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
-            self.text_labels[i].grid(row=i+1, column=self.maxcolval, sticky='ewns')
-              
+            self.text_labels[i].grid(row=i+1, column=self.maxcolval, sticky=tk.N+tk.S+tk.E+tk.W)
+            
+    def update_selections(self, num):
+    
+        for i in range(0, self.maxrowval):
+            self.text_labels[i].grid_remove()
+            self.buttons[i].grid_remove()
+            self.mPrompt.grid_remove()
+        
+        self.grid_remove()
+        
+        self.maxrowval = num
+        self.textvars = []           
+        
+        for i in range(0, self.maxrowval):
+            self.textvars.append(tk.StringVar())
+            self.textvars[i].set('nobadword') 
+            
+        self.grid()
+            
+        self.configure_window()
+        self.update_widgets()
+            
 
 class Choices_Var(tk.Scrollbar):
     pass
@@ -81,9 +113,12 @@ class ButtonCmd():
         self.Main_Prompt = Main_Prompt
     
     def button_cmd(self):
-    
+        
         innum = self.Main_Prompt.size()
-        self.Main_Prompt.insert(innum + 1, 'nafam' + '\n')        
+        self.Main_Prompt.insert(innum + 1, 'nafam' + '\n')   
+
+        self.Main_Prompt.quit()
+        
         if 'FUCK' in self.Text_Var.get():
             self.Text_Var.set("nobadword")
         else:
@@ -93,8 +128,13 @@ class ButtonCmd():
 
 def runprog():
     root = tk.Tk()
-    app = Text_Dungeon(master=root)
-    app.mainloop()
-
+    app = Text_Dungeon(4, master=root)    
+    
+    while 1:
+        app.mainloop()
+        num = int(input("buttonnum:"))
+        app.update_selections(num)
+        
+    
 if __name__ == "__main__":
     runprog()
