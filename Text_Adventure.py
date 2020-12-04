@@ -1,23 +1,10 @@
 import tkinter as tk
 
-class Text_Dungeon(tk.Frame):
+class Text_Dungeon():
 
-    def __init__(self, Num_Answers, master=None):    
-        self.maxrowval = Num_Answers
-        self.minrowval = 0
-        self.maxcolval = 1
-        self.mincolval = 0
-        
-        self.textvars = []           
-        self.mPrompt = tk.Listbox()
-        
-        for i in range(0, self.maxrowval):
-            self.textvars.append(tk.StringVar())
-            self.textvars[i].set('nobadword')                
-        
-        super().__init__(master)
-        self.master = master
-        self.grid()        
+    def __init__(self, master=None):  
+    
+        self.master = master                               
         
         self.configure_window()
         self.create_widgets() 
@@ -26,85 +13,82 @@ class Text_Dungeon(tk.Frame):
     def configure_window(self):
         
         #set the parent frame to expand when maximized
-        top=self.winfo_toplevel()
-        top.rowconfigure(self.minrowval, weight=1)
-        top.columnconfigure(self.mincolval, weight=1)        
-        self.grid(sticky='nsew')        
+        self.master.grid_rowconfigure(0, weight=3)
+        self.master.grid_rowconfigure(1, weight=1)        
+        self.master.grid_columnconfigure(0, weight=1)        
         
-        #configure the selection rows to be roughly 1/4 the screen with the main dialogue the other 3/4
-        self.rowconfigure(self.minrowval, weight=16)
-        for i in range(1, self.maxrowval + 1):
-            self.rowconfigure(i, weight=1)
         
-        #set the second column to expand while the first stays put
-        self.columnconfigure(self.maxcolval, weight=1)
-
+    #make the meat and potatoes
     def create_widgets(self):        
         self.create_mainPrompt()
-        self.create_user_selButo()
-        self.create_user_selText()                
+        self.create_userSelection()             
         
-    def update_widgets(self):        
-        self.update_mainPrompt()
-        self.create_user_selButo()
-        self.create_user_selText()  
-        
+    #Top frame, holds text that is modified based on button choice
     def create_mainPrompt(self):
-        self.mPrompt = tk.Listbox(self, bg='black', fg='white', highlightcolor='red', highlightbackground='red',
+    
+        #holding frame, top 3/4 of screen
+        self.panel_one = tk.Frame(self.master, background='black')                 
+        self.panel_one.grid(row=0,column=0,sticky='nsew')
+        
+        #set interior panel dimensions
+        self.panel_one.grid_rowconfigure(0, weight=1)
+        self.panel_one.grid_columnconfigure(0, weight=1)
+           
+        #the listbox that is contained by the panel one frame
+        self.panel_one.mPrompt = tk.Listbox(self.panel_one, bg='black', 
+        fg='white', highlightcolor='red', highlightbackground='red',
         activestyle='none', highlightthickness=10, selectbackground='black')
-        self.mPrompt.grid(row=0, column=0, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
-        sb = tk.Scrollbar(self.mPrompt)
-        self.mPrompt.configure(yscrollcommand=sb)
         
-    def update_mainPrompt(self):
-        self.mPrompt.grid(row=0, column=0, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
-        sb = tk.Scrollbar(self.mPrompt)
-        self.mPrompt.configure(yscrollcommand=sb)
+        #set to the only interior spot
+        self.panel_one.mPrompt.grid(row=0, column=0, sticky='nsew')
         
-    def create_user_selButo(self):
+        sb = tk.Scrollbar(self.panel_one.mPrompt)
+        self.panel_one.mPrompt.configure(yscrollcommand=sb)
         
-        self.buttons = []
-        self.cmdHandlers = []
         
-        for i in range(0,self.maxrowval):
-            self.cmdHandlers.append(ButtonCmd(i, self.textvars[i], self.mPrompt))
-            self.buttons.append(tk.Button(self, text=str(i+1), bg='black', fg="red", command=self.cmdHandlers[i].button_cmd))
-            self.buttons[i].grid(row=i+1, column=self.mincolval, sticky=tk.N+tk.S+tk.E+tk.W)
-            
+    def create_userSelection(self):
         
-    def create_user_selText(self):
-        
-        self.text_labels = []
-        
-        for i in range(0,self.maxrowval):
-            self.text_labels.append(tk.Label(self, textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
-            self.text_labels[i].grid(row=i+1, column=self.maxcolval, sticky=tk.N+tk.S+tk.E+tk.W)
-            
-    def update_selections(self, num):
-    
-        for i in range(0, self.maxrowval):
-            self.text_labels[i].grid_remove()
-            self.buttons[i].grid_remove()
-            self.mPrompt.grid_remove()
-        
-        self.grid_remove()
-        
-        self.maxrowval = num
-        self.textvars = []           
-        
-        for i in range(0, self.maxrowval):
+        #create text vars
+        self.textvars = []
+        for i in range(0, 4):
             self.textvars.append(tk.StringVar())
-            self.textvars[i].set('nobadword') 
+            self.textvars[i].set('nobadwordnobadwordnobadword') 
             
-        self.grid()
+        
+        #holding frame, bottom 1/4 of screen
+        self.panel_two = tk.Frame(self.master, background='black')        
+        self.panel_two.grid(row=1,column=0, sticky='nsew')
+        
+        #set interior panel column dimensions        
+        self.panel_two.grid_columnconfigure(1, weight=1)
+        
+        cmdHandlers = []
+        self.panel_two.buttons = []        
+        self.panel_two.text_labels = []               
+        
+        for i in range(0,4):
+          
+            cmdHandlers.append(ButtonCmd(i, self.textvars[i], self.panel_one.mPrompt))
+            self.panel_two.buttons.append(tk.Button(self.panel_two, text=str(i+1), bg='black', fg="red", command=cmdHandlers[i].button_cmd))
+            self.panel_two.text_labels.append(tk.Label(self.panel_two, textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
             
-        self.configure_window()
-        self.update_widgets()
+            self.panel_two.grid_columnconfigure(i, weight=1)
+            self.panel_two.buttons[i].grid(row=i, column=0, sticky='nsew')                        
+            self.panel_two.text_labels[i].grid(row=i, column=1, sticky='nsew')                                    
             
-
-class Choices_Var(tk.Scrollbar):
-    pass
     
+    def displayLoop(self):
+        self.master.mainloop()
+        
+
+def runprog():
+    root = tk.Tk()
+    root.geometry('500x500')
+    app = Text_Dungeon(master=root)    
+    app.displayLoop()
+    
+ 
+#wrap a command in order to have it effect a variable source
 class ButtonCmd():
     
     def __init__(self, ID, Text_Var, Main_Prompt):
@@ -116,25 +100,12 @@ class ButtonCmd():
         
         innum = self.Main_Prompt.size()
         self.Main_Prompt.insert(innum + 1, 'nafam' + '\n')   
-
-        self.Main_Prompt.quit()
         
         if 'FUCK' in self.Text_Var.get():
             self.Text_Var.set("nobadword")
         else:
             self.Text_Var.set("FUCK " + str(self.ID))
- 
-
-
-def runprog():
-    root = tk.Tk()
-    app = Text_Dungeon(4, master=root)    
-    
-    while 1:
-        app.mainloop()
-        num = int(input("buttonnum:"))
-        app.update_selections(num)
-        
+            
     
 if __name__ == "__main__":
     runprog()
