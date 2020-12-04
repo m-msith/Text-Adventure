@@ -69,10 +69,14 @@ class Text_Dungeon():
         for i in range(0,4):
           
             cmdHandlers.append(ButtonCmd(i, self.textvars[i], self.panel_one.mPrompt))
-            self.panel_two.buttons.append(tk.Button(self.panel_two, text=str(i+1), bg='black', fg="red", command=cmdHandlers[i].button_cmd))
-            self.panel_two.text_labels.append(tk.Label(self.panel_two, textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
             
-            self.panel_two.grid_columnconfigure(i, weight=1)
+            self.panel_two.buttons.append(tk.Button(self.panel_two, text=str(i+1), 
+            bg='black', fg="red", command=cmdHandlers[i].button_cmd))
+            
+            self.panel_two.text_labels.append(tk.Label(self.panel_two, 
+            textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
+            
+            self.panel_two.grid_rowconfigure(i, weight=1)
             self.panel_two.buttons[i].grid(row=i, column=0, sticky='nsew')                        
             self.panel_two.text_labels[i].grid(row=i, column=1, sticky='nsew')                                    
             
