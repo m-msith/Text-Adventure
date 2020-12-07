@@ -13,15 +13,16 @@ class Text_Dungeon():
     def configure_window(self):
         
         #set the parent frame to expand when maximized
+        self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_rowconfigure(0, weight=3)
-        self.master.grid_rowconfigure(1, weight=1)        
-        self.master.grid_columnconfigure(0, weight=1)        
+        self.master.grid_rowconfigure(1, weight=1)                        
         
         
     #make the meat and potatoes
     def create_widgets(self):        
         self.create_mainPrompt()
         self.create_userSelection()             
+        
         
     #Top frame, holds text that is modified based on button choice
     def create_mainPrompt(self):
@@ -60,14 +61,14 @@ class Text_Dungeon():
         
         
         #holding canvas, bottom 1/4 of screen
-        self.panel_two = tk.Canvas(self.master, background='green')        
-        self.panel_two.grid(row=1,column=0, sticky='nsew')                
+        self.panel_two = tk.Canvas(self.master, background='green', highlightthickness=0)        
+        self.panel_two.grid(row=1, column=0, sticky='nsew')                
         
         #frame inside the canvas to hold our button/label grid
-        self.p2_frame = tk.Frame(self.panel_two, background='black')
-        self.p2_frame.grid(row=0,column=0, sticky='nsew') 
+        self.p2_frame = tk.Frame(self.panel_two, background='black')        
+        
         #in the frame, want the label to expand, not button
-        self.p2_frame.grid_columnconfigure(1, weight=1)                
+        self.p2_frame.grid_columnconfigure(1, weight=1)     
         
         #variable size widget and command handlers
         cmdHandlers = []
@@ -83,36 +84,44 @@ class Text_Dungeon():
             
             self.p2_frame.text_labels.append(WrappingLabel(self.p2_frame, 
             textvariable=self.textvars[i], bg='black', fg='white', anchor='nw'))
-            #self.p2_frame.text_labels[i].bind("<Configure>", self.set_label_wrap)
             
             #even row weights in the frame
             self.p2_frame.grid_rowconfigure(i, weight=1)
             self.p2_frame.buttons[i].grid(row=i, column=0, sticky='nsew')                        
-            self.p2_frame.text_labels[i].grid(row=i, column=1, sticky='nsew')                                    
-          
+            self.p2_frame.text_labels[i].grid(row=i, column=1, sticky='nsew')          
         
         #add the frame with all of it's children to the canvas
-        self.win = self.panel_two.create_window(0, 0, window=self.p2_frame, anchor='nw')
+        self.win = self.panel_two.create_window(0, 0, window=self.p2_frame, anchor='nw')         
         
         #add a scroll bar so we don't bork our dimensions with different choice numbers
-        sb2 = tk.Scrollbar(self.panel_two, command=self.panel_two.yview)
-        sb2.pack(side=tk.RIGHT, fill=tk.Y)
+        self.sb2 = tk.Scrollbar(self.p2_frame, command=self.panel_two.yview)        
+        #self.sb2.grid(row=0,column=2,rowspan=20, sticky="ns")
+        self.panel_two.configure(yscrollcommand=self.sb2.set)                       
         
-        #set max scoll distance to equal the Y-size of the internal frame
-        self.panel_two.configure(yscrollcommand=sb2.set, scrollregion=(0,0,0,0))                
+        self.panel_two.bind("<Enter>", self.BindUserScroll)
+        self.panel_two.bind("<Leave>", self.UnbindUserScroll)
+        self.panel_two.bind("<Configure>", self.FrameWidth)        
+        self.p2_frame.bind("<Configure>", self.OnFrameConfigure)
         
-        self.p2_frame.bind("<Configure>",self.OnFrameConfigure)
-        self.panel_two.bind("<Configure>",self.FrameWidth)
         
-    
-    def displayLoop(self):
-        self.master.mainloop()
+    def OnMouseWheel(self, event):
+        self.panel_two.yview_scroll(-1*(event.delta//120), "units")
+        
+    def BindUserScroll(self, event):
+        self.master.bind_all("<MouseWheel>", self.OnMouseWheel)
+        
+    def UnbindUserScroll(self, event):
+        self.master.unbind_all("<MouseWheel>")
         
     def FrameWidth(self, event):
         self.panel_two.itemconfig(self.win, width = event.width)
         
     def OnFrameConfigure(self, event):
-        self.panel_two.configure(scrollregion=(0,0,self.p2_frame.winfo_width(),self.p2_frame.winfo_height()))
+        self.panel_two.configure(scrollregion=self.p2_frame.bbox("all"))#(0,0,0,self.p2_frame.winfo_height())
+        
+    def displayLoop(self):
+        self.master.mainloop()
+        
 
 def runprog():
     root = tk.Tk()
