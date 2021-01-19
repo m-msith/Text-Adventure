@@ -2,9 +2,9 @@ import tkinter as tk
 
 class Text_Dungeon():
 
-    def __init__(self, master=None):  
+    def __init__(self, conductor=None):  
     
-        self.master = master                               
+        self.conductor = conductor                               
         
         self.configure_window()
         self.create_widgets() 
@@ -13,9 +13,9 @@ class Text_Dungeon():
     def configure_window(self):
         
         #set the parent frame to expand when maximized
-        self.master.grid_columnconfigure(0, weight=1)
-        self.master.grid_rowconfigure(0, weight=3)
-        self.master.grid_rowconfigure(1, weight=1)                        
+        self.conductor.grid_columnconfigure(0, weight=1)
+        self.conductor.grid_rowconfigure(0, weight=3)
+        self.conductor.grid_rowconfigure(1, weight=1)                        
         
         
     #make the meat and potatoes
@@ -28,7 +28,7 @@ class Text_Dungeon():
     def create_mainPrompt(self):
     
         #holding frame, top 3/4 of screen
-        self.panel_one = tk.Frame(self.master, background='black')                 
+        self.panel_one = tk.Frame(self.conductor, background='black')                 
         self.panel_one.grid(row=0,column=0,sticky='nsew')
         
         #set interior panel dimensions
@@ -61,7 +61,7 @@ class Text_Dungeon():
         
         
         #holding canvas, bottom 1/4 of screen
-        self.panel_two = tk.Canvas(self.master, background='green', highlightthickness=0)        
+        self.panel_two = tk.Canvas(self.conductor, background='green', highlightthickness=0)        
         self.panel_two.grid(row=1, column=0, sticky='nsew')                
         
         #frame inside the canvas to hold our button/label grid
@@ -108,10 +108,10 @@ class Text_Dungeon():
         self.panel_two.yview_scroll(-1*(event.delta//120), "units")
         
     def BindUserScroll(self, event):
-        self.master.bind_all("<MouseWheel>", self.OnMouseWheel)
+        self.conductor.bind_all("<MouseWheel>", self.OnMouseWheel)
         
     def UnbindUserScroll(self, event):
-        self.master.unbind_all("<MouseWheel>")
+        self.conductor.unbind_all("<MouseWheel>")
         
     def FrameWidth(self, event):
         self.panel_two.itemconfig(self.win, width = event.width)
@@ -120,18 +120,18 @@ class Text_Dungeon():
         self.panel_two.configure(scrollregion=self.p2_frame.bbox("all"))#(0,0,0,self.p2_frame.winfo_height())
         
     def displayLoop(self):
-        self.master.mainloop()
+        self.conductor.mainloop()
         
 
 def runprog():
     root = tk.Tk()
     root.geometry('500x500')
-    app = Text_Dungeon(master=root)    
+    app = Text_Dungeon(conductor=root)    
     app.displayLoop()
     
 class WrappingLabel(tk.Label):
-    def __init__(self, master=None, **kwargs):
-        tk.Label.__init__(self, master, **kwargs)
+    def __init__(self, conductor=None, **kwargs):
+        tk.Label.__init__(self, conductor, **kwargs)
         self.bind('<Configure>', lambda e: self.config(wraplength=self.winfo_width()))
     
  
@@ -148,12 +148,12 @@ class ButtonCmd():
         innum = self.Main_Prompt.size()
         self.Main_Prompt.insert(innum + 1, 'nafam'+ str(innum) + '\n')   
         
-        if 'FUCK' in self.Text_Var.get():
+        if 'duck' in self.Text_Var.get():
             self.Text_Var.set("nobadwordnobadwordnobadwordnobadwordnobadwordnobadwordnobadword \
             nobadwordnobadwordnobadwordnobadwordnobadwordnobadwordnobadword \
             nobadwordnobadwordnobadwordnobadwordnobadwordnobadwordnobadword")
         else:
-            self.Text_Var.set("FUCK " + str(self.ID))
+            self.Text_Var.set("duck " + str(self.ID))
             
     
 if __name__ == "__main__":
